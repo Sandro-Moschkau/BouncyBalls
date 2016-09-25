@@ -3,17 +3,16 @@ from pygame.locals import *
 import random
 
 class Ball:
-    def __init__(self):
+    def __init__(self, app):
         self.radius     = 25
-        self.x          = random.randint(self.radius, 800-self.radius)
-        self.y          = random.randint(self.radius, 600-self.radius)
+        self.x          = random.randint(self.radius, app.dimensions[0] - self.radius)
+        self.y          = random.randint(self.radius, app.dimensions[1] - self.radius)
         self.speed_x    = random.randint(0, 20) - 10
         self.speed_y    = random.randint(0, 20) - 10
         self.color      = (150,0,0)
         self.max_height  = self.y
         self.last_height = self.y
 
-        self.project_y  = 0
         self.init_y     = self.y
 
     def draw(self, app, surface):

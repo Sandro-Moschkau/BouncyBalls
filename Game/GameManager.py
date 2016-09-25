@@ -4,14 +4,14 @@ from Objects.Ball import Ball
 import math, sys
 
 class GameManager:
-    def __init__(self):
+    def __init__(self, app):
         self.ball_number = 3
         self.balls       = []
         self.gravity     = 1
         self.friction    = 0.00001
 
         for x in range(0, self.ball_number):
-            self.balls.append(Ball())
+            self.balls.append(Ball(app))
 
     def draw(self, app, surface):
         surface.fill((25,0,0))
@@ -19,7 +19,7 @@ class GameManager:
         for ball in self.balls:
             ball.draw(app, surface)
 
-        self.show_debug(app, surface)
+        #self.show_debug(app, surface)
         pygame.display.flip()
 
 
@@ -37,15 +37,29 @@ class GameManager:
 
             counter += 1
 
-    def update(self):
+    def update(self, app):
         self.move_balls()
-        self.detect_collisions()
+        self.detect_collisions(app)
 
     def get_input(self, app):
         keystate = app.key.get_pressed()
         for event in app.event.get():
             if event.type == QUIT or keystate[K_ESCAPE]:
                 app.quit(); sys.exit()
+            elif event.type==VIDEORESIZE:
+                app.dimensions = event.dict['size']
+                app.surface = app.display.set_mode(app.dimensions,HWSURFACE|DOUBLEBUF|RESIZABLE)
+
+                for ball in self.balls:
+                    if ball.x + ball.radius >= app.dimensions[0]:
+                        ball.x = app.dimensions[0] - ball.radius
+                    if ball.y + ball.radius >= app.dimensions[1]:
+                        ball.y = app.dimensions[1] - ball.radius
+
+            if keystate[K_KP_PLUS]:
+                self.gravity += 1
+            if keystate[K_KP_MINUS]:
+                self.gravity -= 1
 
     def move_balls(self):
         balls = self.balls
@@ -53,15 +67,12 @@ class GameManager:
         for ball in balls:
             ball.move(self.gravity)
 
-    def detect_collisions(self):
-        self.detect_wall_collisions()
+    def detect_collisions(self, app):
+        self.detect_wall_collisions(app)
 
     def handle_wall_collision(self, position, speed, gravity, wall_position):
         original_speed = speed - gravity
         orig_pos       = position - ( original_speed + gravity / 2 )
-
-        bounce_distance = 0
-        final_speed     = 0
 
         time_to_wall   = (math.sqrt(2 * gravity * wall_position - 2 * gravity * orig_pos + abs(original_speed)**2) - abs(original_speed) ) / (gravity if gravity else 1)
         speed_at_wall  = gravity * time_to_wall + abs(original_speed)
@@ -82,13 +93,13 @@ class GameManager:
             'speed'    : speed
         }
 
-    def detect_wall_collisions(self):
+    def detect_wall_collisions(self, app):
         balls     = self.balls
         gravity   = self.gravity
 
         for ball in balls:
-            if ( ball.x + ball.radius >= 800 ):
-                wall = 800 - ball.radius
+            if ( ball.x + ball.radius >= app.dimensions[0] ):
+                wall = app.dimensions[0] - ball.radius
 
                 after_collision = self.handle_wall_collision(ball.x, ball.speed_x, 0, wall)
 
@@ -103,8 +114,8 @@ class GameManager:
                 ball.x       = after_collision['position']
                 ball.speed_x = after_collision['speed']
 
-            if ( ball.y + ball.radius >= 600 ):
-                wall = 600 - ball.radius
+            if ( ball.y + ball.radius >= app.dimensions[1] ):
+                wall = app.dimensions[1] - ball.radius
 
                 after_collision = self.handle_wall_collision(ball.y, ball.speed_y, gravity, wall)
 

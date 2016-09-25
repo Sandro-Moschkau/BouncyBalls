@@ -7,12 +7,12 @@ class BouncyBalls:
     def __init__(self):
         pygame.init()
 
-        self.gamemanager = GameManager()
         self.app         = pygame
         self.dimensions  = 800, 600
         self.tickrate    = 100
-        self.surface     = self.app.display.set_mode(self.dimensions)
+        self.surface     = self.app.display.set_mode(self.dimensions,HWSURFACE|DOUBLEBUF|RESIZABLE)
         self.clock       = self.app.time.Clock()
+        self.gamemanager = GameManager(self)
 
     def run(self):
         gamemanager = self.gamemanager
@@ -23,7 +23,7 @@ class BouncyBalls:
 
         while True:
             gamemanager.get_input(app)
-            gamemanager.update()
+            gamemanager.update(app)
             gamemanager.draw(app, surface)
             clock.tick(tickrate)
 
