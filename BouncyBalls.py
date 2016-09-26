@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-from Objects.Ball import Ball
 from Game.GameManager import GameManager
 
 class BouncyBalls:
@@ -20,10 +19,10 @@ class BouncyBalls:
         surface     = self.surface
         clock       = self.clock
         tickrate    = self.tickrate
-
+        print(self)
         while True:
             gamemanager.get_input(app)
-            gamemanager.update(app)
+            gamemanager.update(self)
             gamemanager.draw(app, surface)
             clock.tick(tickrate)
 

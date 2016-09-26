@@ -7,7 +7,7 @@ class GameManager:
     def __init__(self, app):
         self.ball_number = 3
         self.balls       = []
-        self.gravity     = 1
+        self.gravity     = 0.4
         self.friction    = 0.00001
 
         for x in range(0, self.ball_number):
@@ -28,18 +28,18 @@ class GameManager:
         for ball in self.balls:
             y_pos = counter * 110 + 10
             surface.blit(app.font.Font(None, 20).render("Ball %d" % (counter + 1), 1, (250, 240, 230)), (20, y_pos + 0))
-            surface.blit(app.font.Font(None, 20).render("Maximale Höhe %.2f" % ball.max_height, 1, (250, 240, 230)), (20, y_pos + 15))
-            surface.blit(app.font.Font(None, 20).render("aktuelle Höhe %.2f" % ball.y, 1, (250, 240, 230)), (20, y_pos + 30))
-            surface.blit(app.font.Font(None, 20).render("Start-Höhe %d" % ball.init_y, 1, (250, 240, 230)), (20, y_pos + 45))
-            surface.blit(app.font.Font(None, 20).render("letzte Höhe %.2f" % ball.last_height, 1, (250, 240, 230)), (20, y_pos + 60))
+            surface.blit(app.font.Font(None, 20).render("Maximale Hoehe %.2f" % ball.max_height, 1, (250, 240, 230)), (20, y_pos + 15))
+            surface.blit(app.font.Font(None, 20).render("aktuelle Hoehe %.2f" % ball.y, 1, (250, 240, 230)), (20, y_pos + 30))
+            surface.blit(app.font.Font(None, 20).render("Start-Hoehe %d" % ball.init_y, 1, (250, 240, 230)), (20, y_pos + 45))
+            surface.blit(app.font.Font(None, 20).render("letzte Hoehe %.2f" % ball.last_height, 1, (250, 240, 230)), (20, y_pos + 60))
             surface.blit(app.font.Font(None, 20).render("x_speed %.2f" % ball.speed_x, 1, (250, 240, 230)), (20, y_pos + 75))
             surface.blit(app.font.Font(None, 20).render("y_speed %.2f" % ball.speed_y, 1, (250, 240, 230)), (20, y_pos + 90))
 
             counter += 1
 
-    def update(self, app):
+    def update(self, gamemanager):
         self.move_balls()
-        self.detect_collisions(app)
+        self.detect_collisions(gamemanager)
 
     def get_input(self, app):
         keystate = app.key.get_pressed()
@@ -67,8 +67,8 @@ class GameManager:
         for ball in balls:
             ball.move(self.gravity)
 
-    def detect_collisions(self, app):
-        self.detect_wall_collisions(app)
+    def detect_collisions(self, gamemanager):
+        self.detect_wall_collisions(gamemanager)
 
     def handle_wall_collision(self, position, speed, gravity, wall_position):
         original_speed = speed - gravity
@@ -93,13 +93,13 @@ class GameManager:
             'speed'    : speed
         }
 
-    def detect_wall_collisions(self, app):
+    def detect_wall_collisions(self, gamemanager):
         balls     = self.balls
         gravity   = self.gravity
 
         for ball in balls:
-            if ( ball.x + ball.radius >= app.dimensions[0] ):
-                wall = app.dimensions[0] - ball.radius
+            if ( ball.x + ball.radius >= gamemanager.dimensions[0] ):
+                wall = gamemanager.dimensions[0] - ball.radius
 
                 after_collision = self.handle_wall_collision(ball.x, ball.speed_x, 0, wall)
 
@@ -114,8 +114,8 @@ class GameManager:
                 ball.x       = after_collision['position']
                 ball.speed_x = after_collision['speed']
 
-            if ( ball.y + ball.radius >= app.dimensions[1] ):
-                wall = app.dimensions[1] - ball.radius
+            if ( ball.y + ball.radius >= gamemanager.dimensions[1] ):
+                wall = gamemanager.dimensions[1] - ball.radius
 
                 after_collision = self.handle_wall_collision(ball.y, ball.speed_y, gravity, wall)
 
